@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <h1>Titles</h1>
+                <ul class="list-group">
+                    {% for title in titles %}
+                        <li class="list-group-item">
+                            <div class="row">
+                                <div class="col-lg-8">
+                                    <p>
+                                        <b>{{ title.category }}</b>
+                                    </p>
+                                    <p>
+                                        <h4>{{ title.name }}</h4>
+                                    <p>
+                                        Рейтинг: <i>{{ title.title_score }}</i>
+                                    </p>
+
+                                    <ul class="list-group">
+                                        {% for review in title.reviews.all %}
+                                            <li class="list-group-item">
+                                                <div class="row">
+                                                    <div class="col-lg-10">
+                                                        <p>
+                                                            <b style="font-size:16px">{{ review.author }}</b>
+                                                            <span style="font-size:12px">{{ review.pub_date }}</span>
+                                                            <span style="font-size:12px">Оценка: {{ review.score }}</span>
+
+                                                        </p>
+                                                        <p>{{ review.text }}</p>
+                                                        <ul class="list-group">
+                                                            {% for comment in review.comments.all %}
+                                                                <li class="list-group-item">
+                                                                    <div class="row">
+                                                                        <div class="col-lg-10">
+                                                                            <p>
+                                                                                <b style="font-size:14px">{{ comment.author }}</b>
+                                                                                <span style="font-size:10px">{{ comment.pub_date }}</span>
+                                                                            </p>
+                                                                            <p>{{ comment.text }}</p>
+                                                                        </div>
+                                                                    </div>
+                                                                </li>
+                                                            {% endfor %}
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="col-lg-4">
+                <h1>Genres</h1>
+                <ul class="list-group">
+                    {% for genre in genres %}
+                        <li class="list-group-item">{{ genre.name }}</li>
+                    {% endfor %}
+                </ul>
+                <h1>Categories</h1>
+                <ul class="list-group">
+                    {% for category in categories %}
+                        <li class="list-group-item">{{ category.name }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+{% endblock %}
