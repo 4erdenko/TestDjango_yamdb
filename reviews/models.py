@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
 
 from django.db import models
@@ -28,29 +29,13 @@ class Review(models.Model):
         unique_together = ('author', 'title')
 
     def save(self, *args, **kwargs):
-        if not self.pk:
-            if self.author.reviews.filter(title=self.title).exists():
-                raise ValueError(f'Вы уже оставили отзыв на {self.title}')
-            title = self.title
-            rating = [int(review.score) for review in
-                      title.reviews.all()]
-            rating.append(int(self.score))
-            title.title_score = sum(rating) / len(rating)
-            title.save()
-        else:
-            old_score = Review.objects.get(pk=self.pk).score
-            title = self.title
-            rating = [int(review.score) for review in title.reviews.all() if
-                      review.pk != self.pk]
-            rating.append(int(self.score))
-            title.title_score = sum(rating) / len(rating)
-            title.save(update_fields=['title_score'])
-            if old_score != int(self.score):
-                self.title.title_score = (title.title_score * len(
-                    rating) - old_score + int(self.score)) / len(
-                    rating)
-                self.title.save(update_fields=['title_score'])
+        if not self.pk and self.author.reviews.filter(
+                title=self.title).exists():
+            raise ValidationError(f'Вы уже оставили отзыв на {self.title}')
         super().save(*args, **kwargs)
+        self.title.title_score = self.title.reviews.aggregate(
+            models.Avg('score'))['score__avg']
+        self.title.save(update_fields=['title_score'])
 
     def __str__(self):
         return self.text
